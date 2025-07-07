@@ -3,162 +3,176 @@ import {
   loadColorsFromLocalStorage,
   clearColorsFromLocalStorage,
 } from './storage.js';
-window.addEventListener('DOMContentLoaded', () => {
-  const canvas = document.getElementById('canvas');
-  const faceColor = document.getElementById('face-color');
-  const borderColor = document.getElementById('border-color');
-  const lineColor = document.getElementById('line-color');
-  const largeHandColor = document.getElementById('large-hand-color');
-  const secondHandColor = document.getElementById('second-hand-color');
 
-  const colorElements = {
-    faceColor,
-    borderColor,
-    lineColor,
-    largeHandColor,
-    secondHandColor,
-  };
+const canvas = document.getElementById('canvas');
+const faceColor = document.getElementById('face-color');
+const borderColor = document.getElementById('border-color');
+const lineColor = document.getElementById('line-color');
+const largeHandColor = document.getElementById('large-hand-color');
+const secondHandColor = document.getElementById('second-hand-color');
 
-  loadColorsFromLocalStorage(colorElements);
+const colorElements = {
+  faceColor,
+  borderColor,
+  lineColor,
+  largeHandColor,
+  secondHandColor,
+};
 
-  function clock() {
-    const now = new Date();
+loadColorsFromLocalStorage(colorElements);
 
-    const ctx = canvas.getContext('2d');
+function clock() {
+  const now = new Date();
 
-    // Setup canvas
-    ctx.save(); // save the default state
-    ctx.clearRect(0, 0, 500, 500);
-    ctx.translate(250, 250); // Put 0,0 in the middle
-    ctx.rotate(-Math.PI / 2); // Rotate clock -90deg
+  const ctx = canvas.getContext('2d');
 
-    // Set default styles
-    ctx.strokeStyle = '#000000';
-    ctx.fillStyle = '#f4f4f4';
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
+  // Setup canvas
+  ctx.save(); // save the default state
+  ctx.clearRect(0, 0, 500, 500);
+  ctx.translate(250, 250); // Put 0,0 in the middle
+  ctx.rotate(-Math.PI / 2); // Rotate clock -90deg
 
-    // Draw clock face/border
-    ctx.save();
+  // Set default styles
+  ctx.strokeStyle = '#000000';
+  ctx.fillStyle = '#f4f4f4';
+  ctx.lineWidth = 5;
+  ctx.lineCap = 'round';
+
+  // Draw clock face/border
+  ctx.save();
+  ctx.beginPath();
+  ctx.lineWidth = 14;
+  ctx.strokeStyle = borderColor.value;
+  ctx.fillStyle = faceColor.value;
+  ctx.arc(0, 0, 142, 0, Math.PI * 2, true);
+  ctx.stroke();
+  ctx.fill();
+  ctx.restore();
+
+  // Draw hour lines
+  ctx.save();
+  ctx.strokeStyle = lineColor.value;
+  for (let i = 0; i < 12; i++) {
     ctx.beginPath();
-    ctx.lineWidth = 14;
-    ctx.strokeStyle = borderColor.value;
-    ctx.fillStyle = faceColor.value;
-    ctx.arc(0, 0, 142, 0, Math.PI * 2, true);
+    ctx.rotate(Math.PI / 6);
+    ctx.moveTo(100, 0);
+    ctx.lineTo(120, 0);
     ctx.stroke();
-    ctx.fill();
-    ctx.restore();
+  }
+  ctx.restore();
 
-    // Draw hour lines
-    ctx.save();
-    ctx.strokeStyle = lineColor.value;
-    for (let i = 0; i < 12; i++) {
+  // Draw minute lines
+  ctx.save();
+  ctx.strokeStyle = lineColor.value;
+  ctx.lineWidth = 4;
+  for (let i = 0; i < 60; i++) {
+    if (i % 5 !== 0) {
       ctx.beginPath();
-      ctx.rotate(Math.PI / 6);
-      ctx.moveTo(100, 0);
+      ctx.moveTo(117, 0);
       ctx.lineTo(120, 0);
       ctx.stroke();
     }
-    ctx.restore();
-
-    // Draw minute lines
-    ctx.save();
-    ctx.strokeStyle = lineColor.value;
-    ctx.lineWidth = 4;
-    for (let i = 0; i < 60; i++) {
-      if (i % 5 !== 0) {
-        ctx.beginPath();
-        ctx.moveTo(117, 0);
-        ctx.lineTo(120, 0);
-        ctx.stroke();
-      }
-      ctx.rotate(Math.PI / 30);
-    }
-    ctx.restore();
-
-    // Get current time
-    const hr = now.getHours() % 12;
-    const min = now.getMinutes();
-    const sec = now.getSeconds();
-
-    // console.log(`${hr}:${min}:${sec}`);
-
-    // Draw hour hand
-    ctx.save();
-    ctx.rotate(
-      (Math.PI / 6) * hr + (Math.PI / 360) * min + (Math.PI / 21600) * sec
-    );
-    ctx.strokeStyle = largeHandColor.value;
-    ctx.lineWidth = 14;
-    ctx.beginPath();
-    ctx.moveTo(-20, 0);
-    ctx.lineTo(80, 0);
-    ctx.stroke();
-    ctx.restore();
-
-    // Draw min hand
-    ctx.save();
-    ctx.rotate((Math.PI / 30) * min + (Math.PI / 1800) * sec);
-    ctx.strokeStyle = largeHandColor.value;
-    ctx.lineWidth = 10;
-    ctx.beginPath();
-    ctx.moveTo(-28, 0);
-    ctx.lineTo(112, 0);
-    ctx.stroke();
-    ctx.restore();
-
-    // Draw sec hand
-    ctx.save();
-    ctx.rotate((sec * Math.PI) / 30);
-    ctx.strokeStyle = secondHandColor.value;
-    ctx.fillStyle = secondHandColor.value;
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(-30, 0);
-    ctx.lineTo(100, 0);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(0, 0, 10, 0, Math.PI * 2, true);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.restore(); // restore default state
-
-    requestAnimationFrame(clock);
+    ctx.rotate(Math.PI / 30);
   }
+  ctx.restore();
+
+  // Get current time
+  const hr = now.getHours() % 12;
+  const min = now.getMinutes();
+  const sec = now.getSeconds();
+
+  // console.log(`${hr}:${min}:${sec}`);
+
+  // Draw hour hand
+  ctx.save();
+  ctx.rotate(
+    (Math.PI / 6) * hr + (Math.PI / 360) * min + (Math.PI / 21600) * sec
+  );
+  ctx.strokeStyle = largeHandColor.value;
+  ctx.lineWidth = 14;
+  ctx.beginPath();
+  ctx.moveTo(-20, 0);
+  ctx.lineTo(80, 0);
+  ctx.stroke();
+  ctx.restore();
+
+  // Draw min hand
+  ctx.save();
+  ctx.rotate((Math.PI / 30) * min + (Math.PI / 1800) * sec);
+  ctx.strokeStyle = largeHandColor.value;
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.moveTo(-28, 0);
+  ctx.lineTo(112, 0);
+  ctx.stroke();
+  ctx.restore();
+
+  // Draw sec hand
+  ctx.save();
+  ctx.rotate((sec * Math.PI) / 30);
+  ctx.strokeStyle = secondHandColor.value;
+  ctx.fillStyle = secondHandColor.value;
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(-30, 0);
+  ctx.lineTo(100, 0);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, 10, 0, Math.PI * 2, true);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.restore(); // restore default state
 
   requestAnimationFrame(clock);
+}
 
-  document.getElementById('save-btn').addEventListener('click', () => {
-    const dataURL = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.download = 'clock.png';
-    link.href = dataURL;
-    link.click();
-  });
+requestAnimationFrame(clock);
 
-  document
-    .getElementById('save-color-settings')
-    .addEventListener('click', () => {
-      saveColorsToLocalStorage(colorElements);
-    });
-
-  document
-    .getElementById('clear-color-settings')
-    .addEventListener('click', () => {
-      clearColorsFromLocalStorage();
-    });
-
-  // Function to update body background
-  function updateBodyBackground() {
-    document.body.style.backgroundColor = faceColor.value;
-  }
-
-  // Update background when inputs change
-  Object.values(colorElements).forEach((input) => {
-    input.addEventListener('input', updateBodyBackground);
-  });
-
-  // Set initial background
-  updateBodyBackground();
+document.getElementById('save-btn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const dataURL = canvas.toDataURL('image/png');
+  const link = document.createElement('a');
+  link.download = 'clock.png';
+  link.href = dataURL;
+  link.click();
 });
+
+document
+  .getElementById('save-color-settings')
+  .addEventListener('click', (e) => {
+    e.preventDefault();
+
+    // Add a flash effect
+    document.body.style.transition = 'background 0.5s ease, opacity 0.5s ease';
+    document.body.style.background = '#000';
+    document.body.style.opacity = '0.1';
+
+    // Revert back after short delay
+    setTimeout(() => {
+      document.body.style.opacity = '1';
+      document.body.style.background = faceColor.value; // restore chosen background
+    }, 300);
+
+    saveColorsToLocalStorage(colorElements);
+  });
+
+document
+  .getElementById('clear-color-settings')
+  .addEventListener('click', (e) => {
+    e.preventDefault();
+    clearColorsFromLocalStorage();
+  });
+
+// Function to update body background
+function updateBodyBackground() {
+  document.body.style.backgroundColor = faceColor.value;
+}
+
+// Update background when inputs change
+Object.values(colorElements).forEach((input) => {
+  input.addEventListener('input', updateBodyBackground);
+});
+
+// Set initial background
+updateBodyBackground();
